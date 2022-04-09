@@ -20,7 +20,6 @@ export const userSchema = new mongoose.Schema({
 const userModel = mongoose.model('Users', userSchema)
 
 const initUser = async (data:NewUserDataFromRequest):Promise<typeof userSchema> => {
-
 	return new Promise((resolve, reject) => {
 		userModel.findOne({id: data.id}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
 			if (err) {
@@ -48,4 +47,20 @@ const initUser = async (data:NewUserDataFromRequest):Promise<typeof userSchema> 
 	})
 }
 
-export default initUser
+const getUser = async (username:string):Promise<typeof userSchema> => {
+	return new Promise((resolve, reject) => {
+		userModel.findOne({username: username}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
+			if (err) {
+				reject(err)
+			} else if (user) {
+				resolve(user)
+			} else {
+				reject('User not found')
+			}
+		})
+	})
+}
+
+export {
+	getUser, initUser
+}
