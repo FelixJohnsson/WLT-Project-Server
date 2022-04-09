@@ -1,18 +1,20 @@
+import { ResSendObject } from "./serverTypes"
+
 const send = {
-	  success: (res:any, data: Record<any, string>) => {
-			res.status(200).send(data)
+	  success: (res:any, status: number, data: ResSendObject) => {
+			res.status(status).send(data)
 	  },
-	  error: (res:any, data: Record<any, string>) => {
-			res.status(400).send(data)
+	  error: (res:any, status: number,  data: ResSendObject) => {
+			res.status(status).send(data)
 	  },
-	  warning: (res:any, data: Record<any, string>) => {
-			res.status(400).send(data)
+	  warning: (res:any, status: number,  data: ResSendObject) => {
+			res.status(status).send(data)
 	  },
-	  info: (res:any, data: Record<any, string>) => {
-			res.status(400).send(data)
+	  info: (res:any, status: number,  data: ResSendObject) => {
+			res.status(status).send(data)
 	  },
-	  notFound: (res:any, data: Record<any, string>) => {
-			res.status(404).send(data)
+	  notFound: (res:any, status: number,  data: ResSendObject) => {
+			res.status(status).send(data)
 	  },
 }
 
