@@ -3,13 +3,15 @@ import bodyParser from 'body-parser'
 import 'dotenv/config'
 import { v4 as uuid_v4 } from 'uuid'
 import axios from 'axios'
+import bcrypt from 'bcrypt'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 
 import print  from './print'
 import send from './resSend'
-import { ResSendObject } from './serverTypes'
+import { NewUserDataFromRequest, ResSendObject } from './serverTypes'
+import initUser from './database'
 
 const app = express()
 express.Router()
@@ -18,7 +20,7 @@ app.use(express.static("public"))
 	.use(cors())
 	.use(cookieParser())
 	.use(bodyParser.urlencoded({
-		extended: false
+		extended: true
 	}))
 	.use(bodyParser.json())
 
@@ -48,7 +50,7 @@ app.get('/', (req, res) => {
 		}
 	}
 	print.info(info.message)
-	send.info(res, 200, info)
+	send.info(res, info.status, info)
 })
 
 app.get('/home', (req, res) => {
@@ -60,7 +62,7 @@ app.get('/home', (req, res) => {
 		}
 	}
 	print.info(info.message)
-	send.success(res, 200, info)
+	send.success(res, info.status, info)
 })
 
 app.get('/login', (req, res) => {
@@ -72,10 +74,10 @@ app.get('/login', (req, res) => {
 		}
 	}
 	print.info(info.message)
-	send.success(res, 200, info)
+	send.success(res, info.status, info)
 })
 
-app.get('/user/:username', (req, res) => {
+app.get('/get_user/:username', (req, res) => {
 	const info: ResSendObject = {
 		message: `User page: ${req.params.username}`,
 		status: 200,
@@ -86,9 +88,53 @@ app.get('/user/:username', (req, res) => {
 		}
 	}
 	print.info(info.message)
-	send.success(res, 200, info)
+	send.success(res, info.status, info)
 })
 
+app.post('/add_user', async (req, res) => {
+	const newUserData: NewUserDataFromRequest = req.body
+	console.log(req.body)
+
+	if(newUserData.username && newUserData.password) {
+		const info: ResSendObject = {
+			message: 'Added user',
+			status: 200,
+			data: {
+				username: newUserData.username,
+				password: newUserData.password,
+				id: uuid_v4()
+			}
+		}
+		const salt = await bcrypt.genSalt(10)
+		info.data.password = await bcrypt.hash(newUserData.password, salt)
+
+		initUser(info.data)
+		.then((db)=> {
+			info.data = db
+			print.info(info.message)
+			send.success(res, 200, info)
+		})
+		.catch(err => {
+			print.error(err)
+			send.success(res, 500, {message: 'Failed to add user.', status: 500, data: 'Maybe already exists?'})
+		})
+	} else {
+		const info: ResSendObject = {
+			message: 'Bad payload - missing username or password',
+			status: 400,
+			data: {
+				username: newUserData.username,
+				password: newUserData.password,
+			}
+		}
+		print.warning(info.message)
+		send.success(res, info.status, info)
+	}
+})
+
+
+
+// ### 404 - FALLBACK ###
 app.get('*', function(req, res){
 	const info: ResSendObject = {
 		message: 'Not found - Fallback',
@@ -98,7 +144,7 @@ app.get('*', function(req, res){
 		}
 	}
 	print.warning(info.message)
-	send.notFound(res, 404, info)
+	send.notFound(res, info.status, info)
 })
 
 

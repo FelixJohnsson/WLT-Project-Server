@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
+import { NewUserDataFromRequest } from './serverTypes'
 
-const userSchema = new mongoose.Schema({
+export const userSchema = new mongoose.Schema({
     username: {
 		type: String,
 		required: true,
@@ -9,26 +10,28 @@ const userSchema = new mongoose.Schema({
 		minlength: 3,
 		maxlength: 20
 	},
+	password: String,
     id: String,
     socket: String,
     latest_connection: String,
     first_connection: String,
 })
 
-const userModel = mongoose.model('users', userSchema)
+const userModel = mongoose.model('Users', userSchema)
 
-const initUser = async (id: string, username: string):Promise<typeof userSchema> => {
+const initUser = async (data:NewUserDataFromRequest):Promise<typeof userSchema> => {
 
 	return new Promise((resolve, reject) => {
-		userModel.findOne({id: id}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
+		userModel.findOne({id: data.id}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
 				resolve(user)
 			} else {
 				const user = new userModel({
-					id: id,
-					username: username,
+					id: data.id,
+					username: data.username,
+					password: data.password,
 					socket: 'null',
 					latest_connection: new Date().toISOString(),
 					first_connection: new Date().toISOString()
@@ -45,6 +48,4 @@ const initUser = async (id: string, username: string):Promise<typeof userSchema>
 	})
 }
 
-export default {
-	initUser
-}
+export default initUser
