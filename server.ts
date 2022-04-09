@@ -25,10 +25,12 @@ app.use(express.static("public"))
 const port = process.env.PORT
 // .env files are not included in .gitignore, so you need to uncomment it.
 
-mongoose.connect(process.env.MONGO, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true
-	})
+const username = process.env.DB_USERNAME
+const password = process.env.DB_PASSWORD
+const clusterName = process.env.DB_CLUSTER
+const collectionName = process.env.DB_COLLECTION
+
+mongoose.connect(`mongodb+srv://${username}:${password}@${clusterName}.vl6zz.mongodb.net/${collectionName}?retryWrites=true&w=majority`)
 	.then(() => {
 		print.success('Connected to MongoDB.');
 	})
