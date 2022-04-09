@@ -7,5 +7,5 @@ export interface ResSendObject {
 export interface NewUserDataFromRequest {
 	username: string,
 	password: string,
-	id: string
+	internal_id?: string
 }

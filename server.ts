@@ -1,17 +1,25 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import 'dotenv/config'
-import { v4 as uuid_v4 } from 'uuid'
+import {
+	v4 as uuid_v4
+} from 'uuid'
 import axios from 'axios'
 import bcrypt from 'bcrypt'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 
-import print  from './print'
+import print from './print'
 import send from './resSend'
-import { NewUserDataFromRequest, ResSendObject } from './serverTypes'
-import { initUser, getUser } from './database'
+import {
+	NewUserDataFromRequest,
+	ResSendObject
+} from './serverTypes'
+import {
+	initUser,
+	getUser
+} from './database'
 
 const app = express()
 express.Router()
@@ -26,7 +34,7 @@ app.use(express.static("public"))
 
 const port = process.env.PORT
 
-
+// ### MONGO CREDENTIALS ###
 const username = process.env.DB_USERNAME
 const password = process.env.DB_PASSWORD
 const clusterName = process.env.DB_CLUSTER
@@ -78,7 +86,11 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-	const loginData: { username: string, password: string} = req.body
+	const loginData: {
+		username: string,
+		password: string
+	} = req.body
+
 	if (loginData.username && loginData.password) {
 		getUser(loginData.username)
 			.then((user: any) => {
@@ -90,7 +102,10 @@ app.post('/login', (req, res) => {
 								status: 200,
 								data: {
 									username: user.username,
-									id: user.id
+									internal_id: user.internal_id,
+									socket: user.socket,
+									latest_connect: user.latest_connect,
+									first_connection: user.first_connection
 								}
 							}
 							print.info(info.message)
@@ -103,7 +118,7 @@ app.post('/login', (req, res) => {
 									err
 								}
 							}
-							print.info(info.message)
+							print.warning(info.message)
 							send.info(res, info.status, info)
 						}
 					})
@@ -145,25 +160,32 @@ app.post('/login', (req, res) => {
 
 
 app.get('/get_user/:username', (req, res) => {
-	if (req.params.username) {
-	const info: ResSendObject = {
-		message: `Found user: ${req.params.username}`,
-		status: 200,
-		data: {
-			username: req.params.username,
-		}
-	}
-	getUser(info.data.username)
-	.then((db)=> {
-		info.data = db
-		info.data.password = undefined
-		print.info(info.message)
-		send.success(res, 200, info)
-	})
-	.catch(err => {
-		print.error(err)
-		send.success(res, 404, {message: 'Failed to find user.', status: 404, data: {}})
-	})
+	const userData: string = req.params.username
+	if (userData) {
+		getUser(userData)
+			.then(db => {
+				const info: ResSendObject = {
+					message: `Found user: ${userData}`,
+					status: 200,
+					data: {
+						username: db.username,
+						socket: db.socket,
+						first_connection: db.first_connection,
+						latest_connection: db.latest_connection,
+						internal_id: db.id
+					}
+				}
+				print.info(info.message)
+				send.success(res, 200, info)
+			})
+			.catch(err => {
+				print.error(err)
+				send.success(res, 404, {
+					message: 'Failed to find user.',
+					status: 404,
+					data: {}
+				})
+			})
 	} else {
 		const info: ResSendObject = {
 			message: 'No username provided',
@@ -180,29 +202,36 @@ app.get('/get_user/:username', (req, res) => {
 app.post('/add_user', async (req, res) => {
 	const newUserData: NewUserDataFromRequest = req.body
 
-	if(newUserData.username && newUserData.password) {
+	if (newUserData.username && newUserData.password) {
 		const info: ResSendObject = {
-			message: 'Added user',
+			message: `Added user ${newUserData.username}`,
 			status: 200,
 			data: {
 				username: newUserData.username,
 				password: newUserData.password,
-				id: uuid_v4()
+				internal_id: uuid_v4(),
+				first_connection: ''
 			}
 		}
 		const salt = await bcrypt.genSalt(10)
 		info.data.password = await bcrypt.hash(newUserData.password, salt)
 
 		initUser(info.data)
-		.then((db)=> {
-			info.data = db
-			print.info(info.message)
-			send.success(res, 200, info)
-		})
-		.catch(err => {
-			print.error(err)
-			send.success(res, 500, {message: 'Failed to add user.', status: 500, data: 'Maybe already exists?'})
-		})
+			.then((db) => {
+				delete info.data.password
+				info.data.username = db.username
+				info.data.first_connection = db.first_connection
+				print.info(info.message)
+				send.success(res, 200, info)
+			})
+			.catch(err => {
+				print.error(err)
+				send.success(res, 500, {
+					message: 'Failed to add user.',
+					status: 500,
+					data: 'Maybe already exists?'
+				})
+			})
 	} else {
 		const info: ResSendObject = {
 			message: 'Bad payload - missing username or password',
@@ -220,7 +249,7 @@ app.post('/add_user', async (req, res) => {
 
 
 // ### 404 - FALLBACK ###
-app.get('*', function(req, res){
+app.get('*', function (req, res) {
 	const info: ResSendObject = {
 		message: 'Not found - Fallback',
 		status: 404,
@@ -232,7 +261,5 @@ app.get('*', function(req, res){
 	send.notFound(res, info.status, info)
 })
 
-
-  
 
 app.listen(port, () => print.success(`Example app listening on port ${port}`))

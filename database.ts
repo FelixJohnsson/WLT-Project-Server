@@ -11,7 +11,7 @@ export const userSchema = new mongoose.Schema({
 		maxlength: 20
 	},
 	password: String,
-    id: String,
+    internal_id: String,
     socket: String,
     latest_connection: String,
     first_connection: String,
@@ -19,23 +19,23 @@ export const userSchema = new mongoose.Schema({
 
 const userModel = mongoose.model('Users', userSchema)
 
-const initUser = async (data:NewUserDataFromRequest):Promise<typeof userSchema> => {
+const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>> => {
 	return new Promise((resolve, reject) => {
-		userModel.findOne({id: data.id}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
+		userModel.findOne({internal_id: data.internal_id}, (err: any, user: any) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
 				resolve(user)
 			} else {
 				const user = new userModel({
-					id: data.id,
+					internal_id: data.internal_id,
 					username: data.username,
 					password: data.password,
 					socket: 'null',
 					latest_connection: new Date().toISOString(),
 					first_connection: new Date().toISOString()
 				})
-				user.save((err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
+				user.save((err: any, user: any) => {
 					if (err) {
 						reject(err)
 					} else {
@@ -47,9 +47,9 @@ const initUser = async (data:NewUserDataFromRequest):Promise<typeof userSchema> 
 	})
 }
 
-const getUser = async (username:string):Promise<typeof userSchema> => {
+const getUser = async (username:string):Promise<Record<string, any>> => {
 	return new Promise((resolve, reject) => {
-		userModel.findOne({username: username}, (err: any, user: mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}> | PromiseLike<mongoose.Schema<any, mongoose.Model<any, any, any, any>, {}, {}>>) => {
+		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
