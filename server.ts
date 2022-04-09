@@ -1,11 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import 'dotenv/config'
-import {
-	v4 as uuid_v4
-} from 'uuid'
 import axios from 'axios'
-import bcrypt from 'bcrypt'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
@@ -18,7 +14,6 @@ import {
 	ResSendObject
 } from './serverTypes'
 import {
-	initUser,
 	getUser
 } from './database'
 import { handleNewUser } from './userHandler'
@@ -151,8 +146,6 @@ app.post('/add_user', async (req, res) => {
 		send.success(res, info.status, info)
 	}
 })
-
-
 
 // ### 404 - FALLBACK ###
 app.get('*', function (req, res) {

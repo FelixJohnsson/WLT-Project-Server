@@ -1,5 +1,5 @@
 import { initUser } from "./database"
-import { ResSendObject } from "./serverTypes"
+import { NewUserDataFromRequest, ResSendObject } from "./serverTypes"
 import bcrypt from 'bcrypt'
 import {
 	v4 as uuid_v4
@@ -7,7 +7,7 @@ import {
 import print from './print'
 import send from './resSend'
 
-export const handleNewUser = async (res:any, newUserData:any) => {
+export const handleNewUser = async (res:any, newUserData: NewUserDataFromRequest) => {
 	const info: ResSendObject = {
 		message: `Added user ${newUserData.username}`,
 		status: 200,
