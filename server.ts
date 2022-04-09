@@ -1,17 +1,18 @@
 import express from 'express'
-import bodyParser from 'body-parser';
+import bodyParser from 'body-parser'
 import 'dotenv/config'
 import { v4 as uuid_v4 } from 'uuid'
 import axios from 'axios'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import mongoose from 'mongoose'
 
 import print  from './print'
 import send from './resSend'
 import { ResSendObject } from './serverTypes'
 
 const app = express()
-express.Router();
+express.Router()
 
 app.use(express.static("public"))
 	.use(cors())
@@ -19,11 +20,22 @@ app.use(express.static("public"))
 	.use(bodyParser.urlencoded({
 		extended: false
 	}))
-	.use(bodyParser.json());
+	.use(bodyParser.json())
 
 const port = process.env.PORT
 // .env files are not included in .gitignore, so you need to uncomment it.
 
+mongoose.connect(process.env.MONGO, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	})
+	.then(() => {
+		print.success('Connected to MongoDB.');
+	})
+	.catch((err: any) => {
+		print.error('Failed to connect to MongoDB.')
+		print.error(err)
+	})
 
 app.get('/', (req, res) => {
 	const info: ResSendObject = {
@@ -85,7 +97,7 @@ app.get('*', function(req, res){
 	}
 	print.warning(info.message)
 	send.notFound(res, 404, info)
-});
+})
 
 
   
