@@ -29,17 +29,17 @@ app.use(express.static("public"))
 	}))
 	.use(bodyParser.json())
 
-const port = process.env.PORT
-
 // ### MONGO CREDENTIALS ###
 const username = process.env.DB_USERNAME
 const password = process.env.DB_PASSWORD
 const clusterName = process.env.DB_CLUSTER
 const collectionName = process.env.DB_COLLECTION
 
+const port = process.env.PORT
+
 mongoose.connect(`mongodb+srv://${username}:${password}@${clusterName}.vl6zz.mongodb.net/${collectionName}?retryWrites=true&w=majority`)
 	.then(() => {
-		print.success('Connected to MongoDB.');
+		print.success('Connected to MongoDB.')
 	})
 	.catch((err: any) => {
 		print.error('Failed to connect to MongoDB.')

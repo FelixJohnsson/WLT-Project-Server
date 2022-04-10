@@ -1,4 +1,4 @@
 # TypeScript Base-Express-server
-A good Express server starter for any project that requires a REST API. 
+A TS Express server starter for WTL.
 
 With: TypeScript, Express, Chalk, Nodemon, bcrypt, axios, mongoose, uuid
