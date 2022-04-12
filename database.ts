@@ -1,6 +1,44 @@
 import mongoose from 'mongoose'
 import { NewUserDataFromRequest } from './serverTypes'
 
+export enum WorkoutCategory {
+	'Chest' = 'Chest',
+	'Back' = 'Back',
+	'Legs' = 'Legs',
+	'Shoulders' = 'Shoulders',
+	'Tricep' = 'Tricep',
+	'Biceps' = 'Biceps',
+	'Abs' = 'Abs',
+	'Cardio' = 'Cardio',
+	'Other' = 'Other'
+}
+
+export const workoutSchema = new mongoose.Schema({
+	name: {
+		type: String,
+		required: true,
+		trim: true,
+	},
+	description: String,
+	category: {
+		type: WorkoutCategory,
+		required: true,
+	},
+	id: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	sets: Array,
+	reps: Array,
+	weight: Array,
+	notes: String,
+	user_id: {
+		type: String,
+		required: true,
+	}
+})
+
 export const userSchema = new mongoose.Schema({
     username: {
 		type: String,
@@ -15,7 +53,11 @@ export const userSchema = new mongoose.Schema({
     socket: String,
     latest_connection: String,
     first_connection: String,
+	workouts: [workoutSchema],
 })
+
+
+
 
 const userModel = mongoose.model('Users', userSchema)
 
@@ -61,6 +103,33 @@ const getUser = async (username:string):Promise<Record<string, any>> => {
 	})
 }
 
+const saveWorkoutToUser = async (user:Record<string, any>, workout:any):Promise<Record<string, any>> => {
+	return new Promise((resolve, reject) => {
+		user.push(workout)
+		user.save((err: any, user: any) => {
+			if (err) {
+				reject(err)
+			} else {
+				resolve(user)
+			}
+		})
+	})
+}
+
+const getUserWorkouts = async (internal_id:string):Promise<Record<string, any>> => {
+	return new Promise((resolve, reject) => {
+		userModel.findOne({internal_id: internal_id}, (err: any, user: any) => {
+			if (err) {
+				reject(err)
+			} else if (user) {
+				resolve(user)
+			} else {
+				reject('User not found')
+			}
+		})
+	})
+}
+
 export {
-	getUser, initUser
+	getUser, initUser, saveWorkoutToUser, getUserWorkouts
 }

@@ -147,6 +147,14 @@ app.post('/add_user', async (req, res) => {
 	}
 })
 
+app.get('/get_workout/:id', (req, res) => {
+	
+})
+
+app.post('/save_workout/:user_id', (req, res) => {
+
+})
+
 // ### 404 - FALLBACK ###
 app.get('*', function (req, res) {
 	const info: ResSendObject = {
