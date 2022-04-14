@@ -12,11 +12,7 @@ export interface NewUserDataFromRequest {
 
 export interface SaveWorkoutDataFromRequest {
 	username: string,
-	workout: {
-		name: string,
-		description?: string,
-		category: WorkoutCategory,
-	}
+	workout: WorkoutFromDatabase
 }
 
 export enum WorkoutCategory {
@@ -33,7 +29,7 @@ export enum WorkoutCategory {
 
 export enum Status {
 	'complete' = 'complete',
-	'incomplete' = 'incomplete',
+	'done' = 'done',
 	'invalid' = 'invalid',
 	'retired' = 'retired'
 }
@@ -42,17 +38,12 @@ export interface WorkoutFromDatabase {
 	name: string,
 	description: string,
 	category: WorkoutCategory,
-	id: {
-		required: true,
-		unique: true,
-		type: string
-	},
-	sets: Array<number>,
-	reps: Array<number>,
-	weight: Array<number>,
-	notes: string,
+	id: string,
+	sets?: number[],
+	reps?: number[],
+	weight?: number[],
+	notes?: string,
 	status: Status,
-	user_id: string
 }
 
 export interface UserFromDatabase {
@@ -64,5 +55,5 @@ export interface UserFromDatabase {
 	latest_connection: string, // ISO Date
 	first_connection: string, // ISO Date
 	__v: number,
-	workouts: []
+	workouts: WorkoutFromDatabase[]
 }

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { NewUserDataFromRequest } from './serverTypes'
+import { NewUserDataFromRequest, UserFromDatabase, WorkoutFromDatabase } from './serverTypes'
 
 export const workoutSchema = new mongoose.Schema({
 	name: {
@@ -46,7 +46,7 @@ export const userSchema = new mongoose.Schema({
 
 const userModel = mongoose.model('Users', userSchema)
 
-const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>> => { //@TODO TYPE THIS
+const initUser = async (data:NewUserDataFromRequest):Promise<UserFromDatabase> => { //@TODO TYPE THIS
 	return new Promise((resolve, reject) => {
 		userModel.findOne({internal_id: data.internal_id}, (err: any, user: any) => {
 			if (err) {
@@ -74,7 +74,7 @@ const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>
 	})
 }
 
-const getUser = async (username:string):Promise<Record<string, any>> => { //@TODO TYPE THIS
+const getUser = async (username:string):Promise<UserFromDatabase> => { 
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {
@@ -89,7 +89,7 @@ const getUser = async (username:string):Promise<Record<string, any>> => { //@TOD
 	})
 }
 
-const saveWorkoutToUser = async (username:string, workout):Promise<Record<string, any>> => { //@TODO TYPE THIS
+const saveWorkoutToUser = async (username:string, workout: WorkoutFromDatabase):Promise<UserFromDatabase> => { 
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {

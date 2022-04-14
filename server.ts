@@ -5,6 +5,7 @@ import axios from 'axios'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
+import { v4 as uuidv4 } from 'uuid'
 
 import print from './print'
 import send from './resSend'
@@ -12,7 +13,8 @@ import { handleLogin } from './loginHandler'
 import {
 	NewUserDataFromRequest,
 	ResSendObject,
-	SaveWorkoutDataFromRequest
+	SaveWorkoutDataFromRequest,
+	Status
 } from './serverTypes'
 import {
 	getUser, getUserWorkouts, saveWorkoutToUser, initUser
@@ -106,7 +108,7 @@ app.get('/get_user/:username', (req, res) => {
 						socket: db.socket,
 						first_connection: db.first_connection,
 						latest_connection: db.latest_connection,
-						internal_id: db.id
+						internal_id: db.internal_id
 					}
 				}
 				print.info(info.message)
@@ -181,9 +183,18 @@ app.get('/get_workouts/:username', (req, res) => {
 })
 
 app.post('/save_workout', (req, res) => {
-	const data: SaveWorkoutDataFromRequest = req.body // @TODO - validate data
-	console.log(data)
-	saveWorkoutToUser(data.username, data.workout)
+	const data:{username: string, workout: any} = req.body // @TODO - validate data
+	const newWorkout:SaveWorkoutDataFromRequest =  {
+		username: data.username,
+		workout: {
+			name: data.workout.name,
+			description: data.workout.description,
+			category: data.workout.category,
+			status: Status.complete,
+			id: uuidv4(),
+		}
+	}
+	saveWorkoutToUser(data.username, newWorkout.workout)
 	.then((success) => {
 		const info: ResSendObject = {
 			message: `Saved ${data.workout.name} workout for user: ${success.username}`,
