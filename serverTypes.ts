@@ -38,12 +38,13 @@ export interface WorkoutFromDatabase {
 	name: string,
 	description: string,
 	category: WorkoutCategory,
-	id: string,
+	internal_id: string,
 	sets?: number[],
 	reps?: number[],
 	weight?: number[],
 	notes?: string,
 	status: Status,
+	username: string
 }
 
 export interface UserFromDatabase {

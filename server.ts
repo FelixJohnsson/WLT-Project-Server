@@ -184,6 +184,7 @@ app.get('/get_workouts/:username', (req, res) => {
 
 app.post('/save_workout', (req, res) => {
 	const data:{username: string, workout: any} = req.body // @TODO - validate data
+	console.log(data)
 	const newWorkout:SaveWorkoutDataFromRequest =  {
 		username: data.username,
 		workout: {
@@ -191,7 +192,8 @@ app.post('/save_workout', (req, res) => {
 			description: data.workout.description,
 			category: data.workout.category,
 			status: Status.complete,
-			id: uuidv4(),
+			internal_id: uuidv4(),
+			username: data.username,
 		}
 	}
 	saveWorkoutToUser(data.username, newWorkout.workout)
