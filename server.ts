@@ -11,10 +11,11 @@ import send from './resSend'
 import { handleLogin } from './loginHandler'
 import {
 	NewUserDataFromRequest,
-	ResSendObject
+	ResSendObject,
+	SaveWorkoutDataFromRequest
 } from './serverTypes'
 import {
-	getUser
+	getUser, getUserWorkouts, saveWorkoutToUser, initUser
 } from './database'
 import { handleNewUser } from './userHandler'
 
@@ -147,13 +148,60 @@ app.post('/add_user', async (req, res) => {
 	}
 })
 
-app.get('/get_workout/:id', (req, res) => {
+app.get('/get_workouts/:username', (req, res) => {
+	const username: string = req.params.username
+	if (username) {
+		getUserWorkouts(username)
+		.then((data) => {
+			if(data.workouts.length > 0) {
+			const info: ResSendObject = {
+				message: `Found workouts for user: ${username}`,
+				status: 200,
+			}
+			print.info(info.message)
+			send.success(res, info.status, info)
+		} else {
+			const info: ResSendObject = {
+				message: `No workouts found for user: ${username}`,
+				status: 200,
+			}
+			print.info(info.message)
+			send.success(res, info.status, info)
+		}
+		})
+		.catch(err => {
+			const info: ResSendObject = {
+				message: err,
+				status: 404,
+			}
+			print.info(info.message)
+			send.error(res, info.status, info)
+		})
+	}
+})
+
+app.post('/save_workout', (req, res) => {
+	const data: SaveWorkoutDataFromRequest = req.body // @TODO - validate data
+	console.log(data)
+	saveWorkoutToUser(data.username, data.workout)
+	.then((success) => {
+		const info: ResSendObject = {
+			message: `Saved ${data.workout.name} workout for user: ${success.username}`,
+			status: 200,
+		}
+		print.info(info.message)
+		send.success(res, info.status, info)
+	})
+	.catch((err) => {
+		const info: ResSendObject = {
+			message: err,
+			status: 404,
+		}
+		print.info(info.message)
+		send.error(res, info.status, info)
+	})
+})
 	
-})
-
-app.post('/save_workout/:user_id', (req, res) => {
-
-})
 
 // ### 404 - FALLBACK ###
 app.get('*', function (req, res) {

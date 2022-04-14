@@ -1,18 +1,6 @@
 import mongoose from 'mongoose'
 import { NewUserDataFromRequest } from './serverTypes'
 
-export enum WorkoutCategory {
-	'Chest' = 'Chest',
-	'Back' = 'Back',
-	'Legs' = 'Legs',
-	'Shoulders' = 'Shoulders',
-	'Tricep' = 'Tricep',
-	'Biceps' = 'Biceps',
-	'Abs' = 'Abs',
-	'Cardio' = 'Cardio',
-	'Other' = 'Other'
-}
-
 export const workoutSchema = new mongoose.Schema({
 	name: {
 		type: String,
@@ -21,7 +9,7 @@ export const workoutSchema = new mongoose.Schema({
 	},
 	description: String,
 	category: {
-		type: WorkoutCategory,
+		type: ['Chest', 'Back', 'Legs', 'Shoulders', 'Tricep', 'Biceps', 'Abs', 'Cardio', 'Other'],
 		required: true,
 	},
 	id: {
@@ -33,13 +21,13 @@ export const workoutSchema = new mongoose.Schema({
 	reps: Array,
 	weight: Array,
 	notes: String,
-	user_id: {
+	username: {
 		type: String,
 		required: true,
 	}
 })
 
-export const userSchema = new mongoose.Schema({
+export const userSchema = new mongoose.Schema({ 
     username: {
 		type: String,
 		required: true,
@@ -56,12 +44,9 @@ export const userSchema = new mongoose.Schema({
 	workouts: [workoutSchema],
 })
 
-
-
-
 const userModel = mongoose.model('Users', userSchema)
 
-const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>> => {
+const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>> => { //@TODO TYPE THIS
 	return new Promise((resolve, reject) => {
 		userModel.findOne({internal_id: data.internal_id}, (err: any, user: any) => {
 			if (err) {
@@ -89,13 +74,35 @@ const initUser = async (data:NewUserDataFromRequest):Promise<Record<string, any>
 	})
 }
 
-const getUser = async (username:string):Promise<Record<string, any>> => {
+const getUser = async (username:string):Promise<Record<string, any>> => { //@TODO TYPE THIS
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
+				console.log(user)
 				resolve(user)
+			} else {
+				reject(err)
+			}
+		})
+	})
+}
+
+const saveWorkoutToUser = async (username:string, workout):Promise<Record<string, any>> => { //@TODO TYPE THIS
+	return new Promise((resolve, reject) => {
+		userModel.findOne({username: username}, (err: any, user: any) => {
+			if (err) {
+				reject(err)
+			} else if (user) {
+				user.workouts.push(workout)
+				user.save((err: any, user: any) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(user)
+					}
+				})
 			} else {
 				reject('User not found')
 			}
@@ -103,22 +110,9 @@ const getUser = async (username:string):Promise<Record<string, any>> => {
 	})
 }
 
-const saveWorkoutToUser = async (user:Record<string, any>, workout:any):Promise<Record<string, any>> => {
+const getUserWorkouts = async (username:string):Promise<Record<string, any>> => { //@TODO TYPE THIS
 	return new Promise((resolve, reject) => {
-		user.push(workout)
-		user.save((err: any, user: any) => {
-			if (err) {
-				reject(err)
-			} else {
-				resolve(user)
-			}
-		})
-	})
-}
-
-const getUserWorkouts = async (internal_id:string):Promise<Record<string, any>> => {
-	return new Promise((resolve, reject) => {
-		userModel.findOne({internal_id: internal_id}, (err: any, user: any) => {
+		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
