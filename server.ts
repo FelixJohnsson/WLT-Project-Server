@@ -14,7 +14,8 @@ import {
 	NewUserDataFromRequest,
 	ResSendObject,
 	SaveWorkoutDataFromRequest,
-	Status
+	Status,
+	UserFromDatabase
 } from './serverTypes'
 import {
 	getUser, getUserWorkouts, saveWorkoutToUser, initUser
@@ -99,7 +100,8 @@ app.get('/get_user/:username', (req, res) => {
 	const userData: string = req.params.username
 	if (userData) {
 		getUser(userData)
-			.then(db => {
+			.then((db:UserFromDatabase) => {
+				console.log(db)
 				const info: ResSendObject = {
 					message: `Found user: ${userData}`,
 					status: 200,
@@ -108,7 +110,9 @@ app.get('/get_user/:username', (req, res) => {
 						socket: db.socket,
 						first_connection: db.first_connection,
 						latest_connection: db.latest_connection,
-						internal_id: db.internal_id
+						internal_id: db.internal_id,
+						workouts: db.workouts,
+						workouts_count: db.workouts.length,
 					}
 				}
 				print.info(info.message)

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { NewUserDataFromRequest, UserFromDatabase, WorkoutFromDatabase } from './serverTypes'
+import { NewUserDataFromRequest, SaveWorkoutDataFromRequest, UserFromDatabase, WorkoutFromDatabase } from './serverTypes'
 
 export const workoutSchema = new mongoose.Schema({
 	name: {

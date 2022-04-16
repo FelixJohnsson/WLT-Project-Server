@@ -1,5 +1,5 @@
 import { getUser } from "./database"
-import { ResSendObject } from "./serverTypes"
+import { ErrorLoginData, ResSendObject, SuccessfulLoginData } from "./serverTypes"
 import bcrypt from 'bcrypt'
 import print from './print'
 import send from './resSend'
@@ -10,7 +10,7 @@ export const handleLogin = (res:any, loginData: { username: string, password: st
 		if (user) {
 			bcrypt.compare(loginData.password, user.password, (err: any, result: boolean) => {
 				if (result) {
-					const info: ResSendObject = {
+					const info: SuccessfulLoginData = {
 						message: 'Login successful',
 						status: 200,
 						data: {
@@ -24,7 +24,7 @@ export const handleLogin = (res:any, loginData: { username: string, password: st
 					print.info(info.message)
 					send.success(res, info.status, info)
 				} else {
-					const info: ResSendObject = {
+					const info: ErrorLoginData = {
 						message: 'Wrong password or username',
 						status: 401,
 					}
@@ -33,7 +33,7 @@ export const handleLogin = (res:any, loginData: { username: string, password: st
 				}
 			})
 		} else {
-			const info: ResSendObject = {
+			const info: ErrorLoginData = {
 				message: 'Wrong password or username',
 				status: 401,
 			}
@@ -42,7 +42,7 @@ export const handleLogin = (res:any, loginData: { username: string, password: st
 		}
 	})
 	.catch((err: any) => {
-		const info: ResSendObject = {
+		const info: ErrorLoginData = {
 			message: 'Wrong password or username',
 			status: 401,
 		}
