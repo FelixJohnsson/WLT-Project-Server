@@ -12,18 +12,13 @@ export const workoutSchema = new mongoose.Schema({
 		type: ['Chest', 'Back', 'Legs', 'Shoulders', 'Tricep', 'Biceps', 'Abs', 'Cardio', 'Other'],
 		required: true,
 	},
-	id: {
+	internal_id: {
 		type: String,
-		required: true,
 		unique: true,
 	},
-	sets: Array,
-	reps: Array,
-	weight: Array,
-	notes: String,
+	repsAndWeight: Array,
 	username: {
 		type: String,
-		required: true,
 	}
 })
 
@@ -80,7 +75,6 @@ const getUser = async (username:string):Promise<UserFromDatabase> => {
 			if (err) {
 				reject(err)
 			} else if (user) {
-				console.log(user)
 				resolve(user)
 			} else {
 				reject(err)
@@ -89,7 +83,7 @@ const getUser = async (username:string):Promise<UserFromDatabase> => {
 	})
 }
 
-const saveWorkoutToUser = async (username:string, workout: WorkoutFromDatabase):Promise<UserFromDatabase> => { 
+const saveWorkoutToUser = async (username:string, workout: WorkoutFromDatabase):Promise<UserFromDatabase> => {
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {

@@ -15,6 +15,11 @@ export interface SaveWorkoutDataFromRequest {
 	workout: WorkoutFromDatabase
 }
 
+export type RepsAndWeight = {
+	weight: number,
+	rep: number,
+}
+
 export enum WorkoutCategory {
 	'Chest' = 'Chest',
 	'Back' = 'Back',
@@ -39,9 +44,7 @@ export interface WorkoutFromDatabase {
 	description: string,
 	category: WorkoutCategory,
 	internal_id: string,
-	sets?: number[],
-	reps?: number[],
-	weight?: number[],
+	repsAndWeight: RepsAndWeight[],
 	notes?: string,
 	status: Status,
 	username: string

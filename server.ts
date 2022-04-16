@@ -15,7 +15,8 @@ import {
 	ResSendObject,
 	SaveWorkoutDataFromRequest,
 	Status,
-	UserFromDatabase
+	UserFromDatabase,
+	WorkoutFromDatabase
 } from './serverTypes'
 import {
 	getUser, getUserWorkouts, saveWorkoutToUser, initUser
@@ -187,7 +188,7 @@ app.get('/get_workouts/:username', (req, res) => {
 })
 
 app.post('/save_workout', (req, res) => {
-	const data:{username: string, workout: any} = req.body // @TODO - validate data
+	const data:{username: string, workout: WorkoutFromDatabase} = req.body // @TODO - validate data
 	console.log(data)
 	const newWorkout:SaveWorkoutDataFromRequest =  {
 		username: data.username,
@@ -198,6 +199,7 @@ app.post('/save_workout', (req, res) => {
 			status: Status.complete,
 			internal_id: uuidv4(),
 			username: data.username,
+			repsAndWeight: data.workout.repsAndWeight,
 		}
 	}
 	saveWorkoutToUser(data.username, newWorkout.workout)
@@ -210,6 +212,7 @@ app.post('/save_workout', (req, res) => {
 		send.success(res, info.status, info)
 	})
 	.catch((err) => {
+		// @TODO - check/handle error
 		const info: ResSendObject = {
 			message: err,
 			status: 404,
