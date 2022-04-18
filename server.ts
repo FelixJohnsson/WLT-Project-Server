@@ -200,6 +200,7 @@ app.post('/save_workout', (req, res) => {
 			internal_id: uuidv4(),
 			username: data.username,
 			repsAndWeight: data.workout.repsAndWeight,
+			notes: ''
 		}
 	}
 	saveWorkoutToUser(data.username, newWorkout.workout)

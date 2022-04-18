@@ -19,7 +19,9 @@ export const workoutSchema = new mongoose.Schema({
 	repsAndWeight: Array,
 	username: {
 		type: String,
-	}
+	},
+	status: String, //@TODO TYPE THIS
+	notes: String,
 })
 
 export const userSchema = new mongoose.Schema({ 
