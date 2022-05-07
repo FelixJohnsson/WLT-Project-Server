@@ -16,10 +16,10 @@ import {
 	SaveWorkoutDataFromRequest,
 	Status,
 	UserFromDatabase,
-	WorkoutFromDatabase
+	WorkoutFromDatabase,
 } from './serverTypes'
 import {
-	getUser, getUserWorkouts, saveWorkoutToUser, initUser
+	getUser, getUserWorkouts, saveWorkoutToUser, initUser, saveScheduleToUser
 } from './database'
 import { handleNewUser } from './userHandler'
 
@@ -102,7 +102,6 @@ app.get('/get_user/:username', (req, res) => {
 	if (userData) {
 		getUser(userData)
 			.then((db:UserFromDatabase) => {
-				console.log(db)
 				const info: ResSendObject = {
 					message: `Found user: ${userData}`,
 					status: 200,
@@ -222,7 +221,31 @@ app.post('/save_workout', (req, res) => {
 		send.error(res, info.status, info)
 	})
 })
-	
+
+app.post('/save_new_schedule_entry', (req, res) => {
+	const data:{username: string, scheduleEntry: any, dateString: string} = req.body // @TODO - validate data
+	console.warn('Saving schedule')
+	console.log(data.username, data.scheduleEntry)
+
+	saveScheduleToUser(data.username, data.scheduleEntry, data.dateString)
+	.then((success) => {
+		const info: ResSendObject = {
+			message: `Saved ${data.scheduleEntry.name} workout for user: ${success.username}`,
+			status: 200,
+		}
+		print.info(info.message)
+		send.success(res, info.status, info)
+	})
+	.catch((err) => {
+		const info: ResSendObject = {
+			message: err,
+			status: 400,
+		}
+		print.info(info.message)
+		send.error(res, info.status, info)
+	})
+
+})
 
 // ### 404 - FALLBACK ###
 app.get('*', function (req, res) {

@@ -24,33 +24,6 @@ export const workoutSchema = new mongoose.Schema({
 	notes: String,
 })
 
-const workoutInScheduleSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		required: true,
-		trim: true,
-	},
-	description: String,
-	category: {
-		type: ['Chest', 'Back', 'Legs', 'Shoulders', 'Tricep', 'Biceps', 'Abs', 'Cardio', 'Other'],
-		required: true,
-	},
-	internal_id: {
-		type: String,
-		unique: true,
-	},
-	repsAndWeight: Array,
-	username: {
-		type: String,
-	},
-	status: String, //@TODO TYPE THIS
-	notes: String,
-	dateString: {
-		required: true,
-		type: String,
-	}
-})
-
 export const userSchema = new mongoose.Schema({ 
     username: {
 		type: String,
@@ -66,7 +39,7 @@ export const userSchema = new mongoose.Schema({
     latest_connection: String,
     first_connection: String,
 	workouts: [workoutSchema],
-	schedule: [workoutInScheduleSchema]
+	schedule: [] // @TODO TYPE THIS
 })
 
 const userModel = mongoose.model('Users', userSchema)
@@ -134,13 +107,16 @@ const saveWorkoutToUser = async (username:string, workout: WorkoutFromDatabase):
 	})
 }
 
-const saveScheduleToUser = async (username: string, workout: WorkoutFromDatabase):Promise<UserFromDatabase> => {
+const saveScheduleToUser = async (username: string, workout: [WorkoutFromDatabase], dateString: string):Promise<UserFromDatabase> => {
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
 			if (err) {
 				reject(err)
 			} else if (user) {
-				user.schedule.push(workout)
+				user.schedule.push({
+					date: dateString,
+					workouts: [...workout]
+				})
 				user.save((err: any, user: any) => {
 					if (err) {
 						reject(err)
