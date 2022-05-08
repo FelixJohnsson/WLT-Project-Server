@@ -19,7 +19,7 @@ import {
 	WorkoutFromDatabase,
 } from './serverTypes'
 import {
-	getUser, getUserWorkouts, saveWorkoutToUser, initUser, saveScheduleToUser
+	getUser, getUserWorkouts, saveWorkoutToUser, initUser, saveScheduleToUser, getScheduleByDate
 } from './database'
 import { handleNewUser } from './userHandler'
 
@@ -244,7 +244,31 @@ app.post('/save_new_schedule_entry', (req, res) => {
 		print.info(info.message)
 		send.error(res, info.status, info)
 	})
+})
 
+app.get('/get_schedule/:username/:dateString', (req, res) => {
+	const username: string = req.params.username
+	const dateString: string = req.params.dateString
+	if (username && dateString) {
+		getScheduleByDate(username, dateString)
+		.then((data) => {
+			const info: ResSendObject = {
+				message: `Found schedule for user: ${username}`,
+				status: 200,
+				data
+			}
+			print.info(info.message)
+			send.success(res, info.status, info)
+		})
+		.catch(err => {
+			const info: ResSendObject = {
+				message: err,
+				status: 404,
+			}
+			print.info(info.message)
+			send.error(res, info.status, info)
+		})
+	}
 })
 
 // ### 404 - FALLBACK ###
