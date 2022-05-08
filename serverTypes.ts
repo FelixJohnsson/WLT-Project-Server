@@ -60,6 +60,7 @@ export interface UserFromDatabase {
 	first_connection: string, // ISO Date
 	__v: number,
 	workouts: WorkoutFromDatabase[]
+	schedule: []
 }
 
 export interface SuccessfulLoginData {

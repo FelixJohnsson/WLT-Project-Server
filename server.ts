@@ -113,8 +113,11 @@ app.get('/get_user/:username', (req, res) => {
 						internal_id: db.internal_id,
 						workouts: db.workouts,
 						workouts_count: db.workouts.length,
+						schedule: db.schedule
 					}
 				}
+				console.log(info)
+
 				print.info(info.message)
 				send.success(res, 200, info)
 			})
