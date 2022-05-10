@@ -116,8 +116,6 @@ app.get('/get_user/:username', (req, res) => {
 						schedule: db.schedule
 					}
 				}
-				console.log(info)
-
 				print.info(info.message)
 				send.success(res, 200, info)
 			})
@@ -233,9 +231,10 @@ app.post('/save_new_schedule_entry', (req, res) => {
 	saveScheduleToUser(data.username, data.scheduleEntry, data.dateString)
 	.then((success) => {
 		const info: ResSendObject = {
-			message: `Saved ${data.scheduleEntry.name} workout for user: ${success.username}`,
+			message: `Saved new schedule entry for user: ${success.username}`,
 			status: 200,
 		}
+		console.log('SUCCESS ', success)
 		print.info(info.message)
 		send.success(res, info.status, info)
 	})

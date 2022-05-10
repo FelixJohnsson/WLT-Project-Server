@@ -138,7 +138,6 @@ const getScheduleByDate = async (username: string, dateString: string):Promise<a
 				reject(err)
 			} else if (user) {
 				const schedule = user.schedule.find((schedule: any) => {
-					console.log(schedule.date)
 					return schedule.date === dateString
 				})
 				if (schedule) {
