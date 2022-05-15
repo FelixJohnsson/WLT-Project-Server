@@ -152,6 +152,28 @@ const getScheduleByDate = async (username: string, dateString: string):Promise<a
 	})
 }
 
+const saveWorkoutsOrder = async (username: string, workouts: [WorkoutFromDatabase]):Promise<UserFromDatabase> => {
+	return new Promise((resolve, reject) => {
+		userModel.findOne({username: username}, (err: any, user: any) => {
+			if (err) {
+				reject(err)
+			} else if (user) {
+				user.workouts = workouts
+				console.log(user.workouts)
+				user.save((err: any, user: any) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(user)
+					}
+				})
+			} else {
+				reject('404 - User not found')
+			}
+		})
+	})
+}
+
 const getUserWorkouts = async (username:string):Promise<Record<string, any>> => { //@TODO TYPE THIS
 	return new Promise((resolve, reject) => {
 		userModel.findOne({username: username}, (err: any, user: any) => {
@@ -167,5 +189,5 @@ const getUserWorkouts = async (username:string):Promise<Record<string, any>> => 
 }
 
 export {
-	getUser, initUser, saveWorkoutToUser, getUserWorkouts, saveScheduleToUser, getScheduleByDate
+	getUser, initUser, saveWorkoutToUser, getUserWorkouts, saveScheduleToUser, getScheduleByDate, saveWorkoutsOrder
 }

@@ -19,7 +19,7 @@ import {
 	WorkoutFromDatabase,
 } from './serverTypes'
 import {
-	getUser, getUserWorkouts, saveWorkoutToUser, initUser, saveScheduleToUser, getScheduleByDate
+	getUser, getUserWorkouts, saveWorkoutToUser, initUser, saveScheduleToUser, getScheduleByDate, saveWorkoutsOrder
 } from './database'
 import { handleNewUser } from './userHandler'
 
@@ -39,8 +39,7 @@ const username = process.env.DB_USERNAME
 const password = process.env.DB_PASSWORD
 const clusterName = process.env.DB_CLUSTER
 const collectionName = process.env.DB_COLLECTION
-
-const port = process.env.PORT
+const PORT = process.env.PORT
 
 mongoose.connect(`mongodb+srv://${username}:${password}@${clusterName}.vl6zz.mongodb.net/${collectionName}?retryWrites=true&w=majority`)
 	.then(() => {
@@ -223,6 +222,30 @@ app.post('/save_workout', (req, res) => {
 	})
 })
 
+app.post('/save_workouts', (req, res) => {
+	const data:{username: string, workouts: [WorkoutFromDatabase]} = req.body
+
+	saveWorkoutsOrder(data.username, data.workouts)
+	.then((success) => {
+		const info: ResSendObject = {
+			message: `Saved ${data.workouts.length} workouts for user: ${data.username}`,
+			status: 200,
+		}
+		print.info(info.message)
+		send.success(res, info.status, info)
+	}
+	)
+	.catch((err) => {
+		// @TODO - check/handle error
+		const info: ResSendObject = {
+			message: err,
+			status: 404,
+		}
+		print.info(info.message)
+		send.error(res, info.status, info)
+	})	
+})
+
 app.post('/save_new_schedule_entry', (req, res) => {
 	const data:{username: string, scheduleEntry: any, dateString: string} = req.body // @TODO - validate data
 	console.warn('Saving schedule')
@@ -284,4 +307,4 @@ app.get('*', function (req, res) {
 })
 
 
-app.listen(port, () => print.success(`Example app listening on port ${port}`))
+app.listen(PORT, () => print.success(`Example app listening on PORT ${PORT}`))
